@@ -5,6 +5,9 @@ import os
 
 
 def run_speedtest():
+
+    #create timestamp for speedtest log at moment of test
+    timestamp = datetime.now().strftime(f"%Y-%m-%d %H:%M:%S")
     try:
         
         #build log directory
@@ -14,10 +17,10 @@ def run_speedtest():
 
         #test if log directory exists and make it if it does not
         if not os.path.exists(log_dir):
-            os.mkdirs(log_dir)
+            os.makedirs(log_dir, exist_ok=True)
             
         #create timestamp for speedtest log at moment of test
-        timestamp = datetime.now().strftime(f"%Y-%m-%d %H:%M:%S")
+        #timestamp = datetime.now().strftime(f"%Y-%m-%d %H:%M:%S")
         
         st = speedtest.Speedtest()
         st.get_best_server()#get the best server
@@ -28,13 +31,16 @@ def run_speedtest():
         
         #log results to file
         with open(log_file_path, "a") as f:
-            f.write(f"{timestamp}: {download=:.2f}, {upload=:.2f} \n")
+            f.write(f"{timestamp} - Download: {download:.2f} Mbps, Upload: {upload:.2f} Mbps\n")
+            print(f"Test complete: {download:.2f} Mbps down / {upload:.2f} Mbps up")
             
     except Exception as e:
         error_msg = f"[{timestamp}] Speedtest failed: {e}"
         print(error_msg)
-        with open(log_file_path, "a") as f:
-            f.write(error_msg + "\n")
+        # Note: This will only work if log_dir was successfully created
+        if os.path.exists(log_dir):
+            with open(log_file_path, "a") as f:
+                f.write(error_msg + "\n")
 
 
 if __name__ == "__main__":
